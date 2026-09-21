@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import zlib from 'zlib';
+import { execFileSync } from 'child_process';
 
 function createPng(width, height, drawPixel) {
   const rowSize = 1 + width * 4;
@@ -284,20 +285,7 @@ fs.writeFileSync(
   })
 );
 
-const screenshots = [
-  ['screenshot-1-structured-compare.png', screenshotCompare],
-  ['screenshot-2-multilingual-interface.png', screenshotLanguages],
-  ['screenshot-3-ignore-noise-fields.png', screenshotIgnore],
-  ['screenshot-4-local-privacy.png', screenshotPrivacy],
-  ['screenshot-5-usage-statistics.png', screenshotStats],
-];
-
-for (const [filename, renderer] of screenshots) {
-  console.log(`Generating ${filename} (1280x800)...`);
-  fs.writeFileSync(
-    path.join(screenshotsDir, filename),
-    createPng(1280, 800, renderer)
-  );
-}
+console.log('Capturing real 1280x800 extension screenshots...');
+execFileSync('node', ['scripts/capture-store-screenshots.js'], { stdio: 'inherit' });
 
 console.log('Store assets successfully generated in store-assets/.');

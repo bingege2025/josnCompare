@@ -13,8 +13,8 @@
 | **功能截图 1** | `store-assets/screenshots/screenshot-1-structured-compare.png` | 1280×800 px PNG | 双栏结构化比对与差异高亮 |
 | **功能截图 2** | `store-assets/screenshots/screenshot-2-multilingual-interface.png` | 1280×800 px PNG | 多语言界面切换 |
 | **功能截图 3** | `store-assets/screenshots/screenshot-3-ignore-noise-fields.png` | 1280×800 px PNG | 噪声字段忽略与路径规则 |
-| **功能截图 4** | `store-assets/screenshots/screenshot-4-local-privacy.png` | 1280×800 px PNG | 本地处理与隐私承诺 |
-| **功能截图 5** | `store-assets/screenshots/screenshot-5-usage-statistics.png` | 1280×800 px PNG | 本地使用频次统计 |
+| **功能截图 4** | `store-assets/screenshots/screenshot-4-usage-statistics.png` | 1280×800 px PNG | 本地使用频次统计 |
+| **功能截图 5** | `store-assets/screenshots/screenshot-5-russian-interface.png` | 1280×800 px PNG | 俄语界面示例 |
 | **小型宣传横幅** | `store-assets/promo-small-440x280.png` | 440×280 px PNG | 商店首页推荐卡片（可选上传） |
 | **隐私权政策文档** | `docs/privacy-policy.html` / `docs/PRIVACY_POLICY.md` | HTML / Markdown | 托管在 GitHub Pages 或网站 |
 | **填表文案与理由** | `CHROMEWEBSTORE.md` | Markdown | 复制粘贴到开发者后台各输入框 |
@@ -54,8 +54,8 @@
      - 点击上传 `store-assets/screenshots/screenshot-1-structured-compare.png`
      - 点击上传 `store-assets/screenshots/screenshot-2-multilingual-interface.png`
      - 点击上传 `store-assets/screenshots/screenshot-3-ignore-noise-fields.png`
-     - 点击上传 `store-assets/screenshots/screenshot-4-local-privacy.png`
-     - 点击上传 `store-assets/screenshots/screenshot-5-usage-statistics.png`
+     - 点击上传 `store-assets/screenshots/screenshot-4-usage-statistics.png`
+     - 点击上传 `store-assets/screenshots/screenshot-5-russian-interface.png`
    - **小型宣传图 (可选)**：上传 `store-assets/promo-small-440x280.png`
 3. **分类与类别 (Categorization)**：
    - **类别**：选择 `开发者工具` (Developer Tools)
