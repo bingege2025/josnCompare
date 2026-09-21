@@ -30,7 +30,9 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="header">
       <div className="brand-section">
-        <div className="brand-logo">{}</div>
+        <div className="brand-logo">
+          <img src="/icons/icon-48.png" alt="" width="32" height="32" />
+        </div>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span className="brand-title">JSON Compare</span>
