@@ -8,7 +8,7 @@ function createPng(width, height, drawPixel) {
 
   for (let y = 0; y < height; y++) {
     const rowStart = y * rowSize;
-    rawData[rowStart] = 0; // Filter: none
+    rawData[rowStart] = 0;
 
     for (let x = 0; x < width; x++) {
       const pixelStart = rowStart + 1 + x * 4;
@@ -69,119 +69,235 @@ function createPng(width, height, drawPixel) {
   ]);
 }
 
+function inRect(x, y, left, top, right, bottom) {
+  return x >= left && x <= right && y >= top && y <= bottom;
+}
+
+function inCircle(x, y, cx, cy, radius) {
+  return (x - cx) ** 2 + (y - cy) ** 2 <= radius ** 2;
+}
+
+function mix(a, b, t) {
+  return Math.round(a * (1 - t) + b * t);
+}
+
+function base(x, y, w, h, palette = 'blue') {
+  const t = (x * 0.7 + y * 0.5) / (w * 0.7 + h * 0.5);
+  const palettes = {
+    blue: [[239, 246, 255], [236, 253, 245]],
+    slate: [[248, 250, 252], [230, 244, 255]],
+    green: [[240, 253, 244], [239, 246, 255]],
+    amber: [[255, 251, 235], [239, 246, 255]],
+    violet: [[245, 243, 255], [236, 253, 245]],
+  };
+  const [from, to] = palettes[palette] || palettes.blue;
+  return [
+    mix(from[0], to[0], t),
+    mix(from[1], to[1], t),
+    mix(from[2], to[2], t),
+    255,
+  ];
+}
+
+function shell(x, y, w, h) {
+  if (inRect(x, y, 48, 42, w - 48, 116)) return y === 115 ? [226, 232, 240, 255] : [255, 255, 255, 255];
+  if (inRect(x, y, 74, 64, 108, 98)) return [14, 116, 144, 255];
+  if (inRect(x, y, 126, 69, 270, 77)) return [15, 23, 42, 255];
+  if (inRect(x, y, w - 500, 66, w - 380, 92)) return [219, 234, 254, 255];
+  if (inRect(x, y, w - 360, 66, w - 240, 92)) return [220, 252, 231, 255];
+  if (inRect(x, y, w - 220, 66, w - 84, 92)) return [254, 226, 226, 255];
+  return null;
+}
+
+function card(x, y, left, top, right, bottom, fill = [255, 255, 255, 255], border = [226, 232, 240, 255]) {
+  if (!inRect(x, y, left, top, right, bottom)) return null;
+  if (x === left || x === right || y === top || y === bottom) return border;
+  return fill;
+}
+
+function lineRows(x, y, left, top, widths, color = [148, 163, 184, 255]) {
+  for (let i = 0; i < widths.length; i++) {
+    const yy = top + i * 22;
+    if (inRect(x, y, left, yy, left + widths[i], yy + 6)) return color;
+  }
+  return null;
+}
+
+function screenshotCompare(x, y, w, h) {
+  const shellColor = shell(x, y, w, h);
+  if (shellColor) return shellColor;
+
+  const leftEditor = card(x, y, 64, 150, 612, 438);
+  if (leftEditor) {
+    if (inRect(x, y, 64, 150, 612, 192)) return y === 192 ? [226, 232, 240, 255] : [248, 250, 252, 255];
+    const row = lineRows(x, y, 96, 224, [240, 180, 320, 220, 280, 150], [71, 85, 105, 255]);
+    return row || leftEditor;
+  }
+
+  const rightEditor = card(x, y, 668, 150, 1216, 438);
+  if (rightEditor) {
+    if (inRect(x, y, 668, 150, 1216, 192)) return y === 192 ? [226, 232, 240, 255] : [248, 250, 252, 255];
+    const row = lineRows(x, y, 700, 224, [240, 180, 320, 220, 280, 150], [71, 85, 105, 255]);
+    if (inRect(x, y, 920, 286, 1070, 302)) return [219, 234, 254, 255];
+    return row || rightEditor;
+  }
+
+  const table = card(x, y, 64, 480, 1216, 738);
+  if (table) {
+    if (inRect(x, y, 64, 480, 1216, 528)) return [248, 250, 252, 255];
+    const row = Math.floor((y - 528) / 42);
+    if (row >= 0) {
+      if (row % 4 === 0) return inRect(x, y, 90, 542 + row * 42, 168, 562 + row * 42) ? [16, 185, 129, 255] : [240, 253, 244, 255];
+      if (row % 4 === 1) return inRect(x, y, 90, 542 + row * 42, 168, 562 + row * 42) ? [239, 68, 68, 255] : [254, 242, 242, 255];
+      if (row % 4 === 2) return inRect(x, y, 90, 542 + row * 42, 168, 562 + row * 42) ? [59, 130, 246, 255] : [239, 246, 255, 255];
+    }
+    return table;
+  }
+
+  return base(x, y, w, h, 'blue');
+}
+
+function screenshotLanguages(x, y, w, h) {
+  const shellColor = shell(x, y, w, h);
+  if (shellColor) return shellColor;
+
+  const panel = card(x, y, 200, 160, 1080, 650);
+  if (panel) {
+    if (inRect(x, y, 250, 208, 420, 230)) return [15, 23, 42, 255];
+    const languages = [
+      [300, 300, 450, 360, [219, 234, 254, 255]],
+      [480, 300, 630, 360, [220, 252, 231, 255]],
+      [660, 300, 810, 360, [254, 243, 199, 255]],
+      [840, 300, 990, 360, [237, 233, 254, 255]],
+      [480, 400, 800, 470, [255, 255, 255, 255]],
+    ];
+    for (const [l, t, r, b, c] of languages) {
+      const item = card(x, y, l, t, r, b, c, [203, 213, 225, 255]);
+      if (item) return item;
+    }
+    if (inRect(x, y, 390, 535, 890, 548)) return [14, 116, 144, 255];
+    if (inRect(x, y, 440, 570, 840, 580)) return [100, 116, 139, 255];
+    return panel;
+  }
+
+  return base(x, y, w, h, 'violet');
+}
+
+function screenshotIgnore(x, y, w, h) {
+  const shellColor = shell(x, y, w, h);
+  if (shellColor) return shellColor;
+
+  const workspace = card(x, y, 72, 144, 1208, 724);
+  if (workspace) {
+    if (inRect(x, y, 112, 190, 500, 220)) return [15, 23, 42, 255];
+    const drawer = card(x, y, 112, 250, 1168, 340, [248, 250, 252, 255]);
+    if (drawer) {
+      if (inRect(x, y, 146, 282, 300, 310)) return [226, 232, 240, 255];
+      if (inRect(x, y, 330, 282, 505, 310)) return [226, 232, 240, 255];
+      if (inRect(x, y, 535, 282, 700, 310)) return [226, 232, 240, 255];
+      return drawer;
+    }
+    for (let i = 0; i < 5; i++) {
+      const top = 390 + i * 52;
+      const bg = i % 2 === 0 ? [255, 255, 255, 255] : [248, 250, 252, 255];
+      const row = card(x, y, 112, top, 1168, top + 42, bg);
+      if (row) {
+        if (inRect(x, y, 960, top + 10, 1052, top + 32)) return [219, 234, 254, 255];
+        if (inRect(x, y, 1066, top + 10, 1142, top + 32)) return [220, 252, 231, 255];
+        return row;
+      }
+    }
+    return workspace;
+  }
+
+  return base(x, y, w, h, 'green');
+}
+
+function screenshotPrivacy(x, y, w, h) {
+  const shellColor = shell(x, y, w, h);
+  if (shellColor) return shellColor;
+
+  if (inCircle(x, y, 640, 330, 146)) return [14, 116, 144, 255];
+  if (inCircle(x, y, 640, 330, 112)) return [255, 255, 255, 255];
+  if (inRect(x, y, 595, 290, 625, 386)) return [14, 116, 144, 255];
+  if (inRect(x, y, 625, 356, 704, 386)) return [14, 116, 144, 255];
+  if (inRect(x, y, 690, 260, 722, 386)) return [14, 116, 144, 255];
+
+  const left = card(x, y, 130, 520, 392, 630, [255, 255, 255, 255]);
+  if (left) return inRect(x, y, 168, 552, 340, 565) ? [15, 23, 42, 255] : left;
+  const mid = card(x, y, 508, 520, 772, 630, [255, 255, 255, 255]);
+  if (mid) return inRect(x, y, 548, 552, 720, 565) ? [15, 23, 42, 255] : mid;
+  const right = card(x, y, 888, 520, 1150, 630, [255, 255, 255, 255]);
+  if (right) return inRect(x, y, 928, 552, 1100, 565) ? [15, 23, 42, 255] : right;
+
+  return base(x, y, w, h, 'slate');
+}
+
+function screenshotStats(x, y, w, h) {
+  const shellColor = shell(x, y, w, h);
+  if (shellColor) return shellColor;
+
+  const modal = card(x, y, 300, 138, 980, 690);
+  if (modal) {
+    if (inRect(x, y, 300, 138, 980, 194)) return [248, 250, 252, 255];
+    const cards = [
+      [330, 230, 470, 320, [239, 246, 255, 255]],
+      [490, 230, 630, 320, [240, 253, 244, 255]],
+      [650, 230, 790, 320, [248, 250, 252, 255]],
+      [810, 230, 950, 320, [255, 251, 235, 255]],
+    ];
+    for (const [l, t, r, b, c] of cards) {
+      const stat = card(x, y, l, t, r, b, c);
+      if (stat) return stat;
+    }
+    const table = card(x, y, 330, 360, 950, 580);
+    if (table) {
+      if (inRect(x, y, 330, 360, 950, 400)) return [248, 250, 252, 255];
+      const row = Math.floor((y - 400) / 36);
+      if (row >= 0 && row < 5) return row % 2 === 0 ? [255, 255, 255, 255] : [248, 250, 252, 255];
+      return table;
+    }
+    if (inRect(x, y, 330, 610, 950, 646)) return [236, 253, 245, 255];
+    return modal;
+  }
+
+  return base(x, y, w, h, 'amber');
+}
+
 const assetsDir = path.resolve('store-assets');
 const screenshotsDir = path.join(assetsDir, 'screenshots');
 fs.mkdirSync(screenshotsDir, { recursive: true });
 
-// 复制 128x128 图标到 store-assets
-fs.copyFileSync(
-  path.resolve('public/icons/icon-128.png'),
-  path.join(assetsDir, 'icon-128.png')
+fs.copyFileSync(path.resolve('public/icons/icon-128.png'), path.join(assetsDir, 'icon-128.png'));
+
+console.log('Generating promo-small-440x280.png...');
+fs.writeFileSync(
+  path.join(assetsDir, 'promo-small-440x280.png'),
+  createPng(440, 280, (x, y, w, h) => {
+    const bg = base(x, y, w, h, 'blue');
+    const icon = card(x, y, 54, 54, 172, 172, [14, 116, 144, 255], [14, 116, 144, 255]);
+    if (icon) return icon;
+    if (inRect(x, y, 210, 82, 380, 102)) return [15, 23, 42, 255];
+    if (inRect(x, y, 210, 126, 360, 138)) return [71, 85, 105, 255];
+    if (inRect(x, y, 210, 154, 330, 166)) return [14, 116, 144, 255];
+    return bg;
+  })
 );
 
-// 1. 生成 440x280 小型推广横幅 (Small Promo Tile)
-console.log('Generating promo-small-440x280.png...');
-const promoPng = createPng(440, 280, (x, y, w, h) => {
-  // 优雅的蓝青渐变背景
-  const t = (x + y) / (w + h);
-  const r = Math.round(30 * (1 - t) + 15 * t);
-  const g = Math.round(64 * (1 - t) + 90 * t);
-  const b = Math.round(175 * (1 - t) + 220 * t);
+const screenshots = [
+  ['screenshot-1-structured-compare.png', screenshotCompare],
+  ['screenshot-2-multilingual-interface.png', screenshotLanguages],
+  ['screenshot-3-ignore-noise-fields.png', screenshotIgnore],
+  ['screenshot-4-local-privacy.png', screenshotPrivacy],
+  ['screenshot-5-usage-statistics.png', screenshotStats],
+];
 
-  // 中间放一个卡片视觉区域
-  if (x >= 40 && x <= 400 && y >= 50 && y <= 230) {
-    const isBorder = x === 40 || x === 400 || y === 50 || y === 230;
-    if (isBorder) return [255, 255, 255, 180];
-    // 卡片内微透深色
-    return [255, 255, 255, 240];
-  }
+for (const [filename, renderer] of screenshots) {
+  console.log(`Generating ${filename} (1280x800)...`);
+  fs.writeFileSync(
+    path.join(screenshotsDir, filename),
+    createPng(1280, 800, renderer)
+  );
+}
 
-  return [r, g, b, 255];
-});
-fs.writeFileSync(path.join(assetsDir, 'promo-small-440x280.png'), promoPng);
-
-// 2. 生成 1280x800 官方标准截图 1：双栏对比与差异高亮
-console.log('Generating screenshot-1-compare-diff.png (1280x800)...');
-const screenshot1 = createPng(1280, 800, (x, y) => {
-  // 背景 #f8fafc
-  if (y < 60) {
-    // 顶部 Header 区域
-    if (y === 59) return [226, 232, 240, 255]; // 底部线条
-    if (x >= 30 && x <= 62 && y >= 14 && y <= 46) {
-      // 蓝色 Logo
-      return [37, 99, 235, 255];
-    }
-    return [255, 255, 255, 255];
-  }
-
-  // 主编辑区背景
-  if (y >= 80 && y <= 380) {
-    // 左栏卡片 [30, 625]
-    if (x >= 30 && x <= 625) {
-      if (y === 80 || y === 380 || x === 30 || x === 625) return [226, 232, 240, 255];
-      if (y <= 115) return [248, 250, 252, 255]; // 卡片头
-      return [255, 255, 255, 255]; // 编辑器内部
-    }
-    // 右栏卡片 [655, 1250]
-    if (x >= 655 && x <= 1250) {
-      if (y === 80 || y === 380 || x === 655 || x === 1250) return [226, 232, 240, 255];
-      if (y <= 115) return [248, 250, 252, 255]; // 卡片头
-      return [255, 255, 255, 255]; // 编辑器内部
-    }
-  }
-
-  // 下方差异表格区域 [405, 760]
-  if (y >= 405 && y <= 760 && x >= 30 && x <= 1250) {
-    if (y === 405 || y === 760 || x === 30 || x === 1250) return [226, 232, 240, 255];
-    // 表头
-    if (y <= 445) return [248, 250, 252, 255];
-    // 模拟斑马线与差异色彩
-    const rowIdx = Math.floor((y - 445) / 45);
-    if (rowIdx % 4 === 0) {
-      // 新增行 (微绿色高亮)
-      if (x >= 40 && x <= 120 && (y - 445) % 45 >= 12 && (y - 445) % 45 <= 32) return [16, 185, 129, 255];
-      return [240, 253, 244, 255];
-    }
-    if (rowIdx % 4 === 1) {
-      // 删除行 (微红色高亮)
-      if (x >= 40 && x <= 120 && (y - 445) % 45 >= 12 && (y - 445) % 45 <= 32) return [239, 68, 68, 255];
-      return [254, 242, 242, 255];
-    }
-    if (rowIdx % 4 === 2) {
-      // 值变化 (微蓝色高亮)
-      if (x >= 40 && x <= 120 && (y - 445) % 45 >= 12 && (y - 445) % 45 <= 32) return [59, 130, 246, 255];
-      return [239, 246, 255, 255];
-    }
-    return [255, 255, 255, 255];
-  }
-
-  return [248, 250, 252, 255];
-});
-fs.writeFileSync(path.join(screenshotsDir, 'screenshot-1-compare-diff.png'), screenshot1);
-
-// 3. 生成 1280x800 官方标准截图 2：使用频次统计与忽略管理
-console.log('Generating screenshot-2-ignore-and-stats.png (1280x800)...');
-const screenshot2 = createPng(1280, 800, (x, y) => {
-  // 底层虚化背景
-  const baseR = 230, baseG = 235, baseB = 245;
-
-  // 居中模态框 [340, 940] x [150, 650]
-  if (x >= 340 && x <= 940 && y >= 150 && y <= 650) {
-    if (x === 340 || x === 940 || y === 150 || y === 650) return [203, 213, 225, 255];
-    // 弹窗头部
-    if (y <= 200) return [248, 250, 252, 255];
-    // 指标卡片区域 [220, 300]
-    if (y >= 220 && y <= 300) {
-      if (x >= 360 && x <= 480) return [239, 246, 255, 255]; // 今日卡片
-      if (x >= 500 && x <= 620) return [240, 253, 244, 255]; // 累计卡片
-      if (x >= 640 && x <= 760) return [248, 250, 252, 255]; // 打开卡片
-      if (x >= 780 && x <= 900) return [248, 250, 252, 255]; // 活跃卡片
-    }
-    return [255, 255, 255, 255];
-  }
-
-  return [baseR, baseG, baseB, 255];
-});
-fs.writeFileSync(path.join(screenshotsDir, 'screenshot-2-ignore-and-stats.png'), screenshot2);
-
-console.log('Store assets successfully generated in store-assets/');
+console.log('Store assets successfully generated in store-assets/.');
