@@ -1,0 +1,11 @@
+{
+  "extensionName": {
+    "message": "JSON Compare - API Diff Tool"
+  },
+  "extensionDescription": {
+    "message": "A structured JSON comparison tool for developers to quickly find field-level changes and type differences."
+  },
+  "actionTitle": {
+    "message": "Open JSON Compare"
+  }
+}

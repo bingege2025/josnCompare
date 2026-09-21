@@ -1,0 +1,11 @@
+{
+  "extensionName": {
+    "message": "JSON Compare - Outil de diff API"
+  },
+  "extensionDescription": {
+    "message": "Un outil de comparaison JSON structuré pour aider les développeurs à repérer rapidement les changements de champs et de types."
+  },
+  "actionTitle": {
+    "message": "Ouvrir JSON Compare"
+  }
+}

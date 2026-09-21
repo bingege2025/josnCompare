@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy - JSON Compare</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: #1e293b;
+      background-color: #f8fafc;
+      margin: 0;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 10px 15px -5px rgba(0,0,0,0.02);
+      border: 1px solid #e2e8f0;
+    }
+    h1 { font-size: 26px; color: #0f172a; margin-top: 0; border-bottom: 2px solid #3b82f6; padding-bottom: 12px; }
+    h2 { font-size: 18px; color: #1e40af; margin-top: 28px; }
+    h3 { font-size: 15px; color: #334155; }
+    p, li { font-size: 14.5px; color: #334155; }
+    ul { padding-left: 20px; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    th, td { border: 1px solid #e2e8f0; padding: 10px 12px; text-align: left; }
+    th { background: #f1f5f9; font-weight: 600; }
+    .badge { display: inline-block; background: #ecfdf5; color: #065f46; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 12px; }
+    .updated { font-size: 13px; color: #64748b; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Privacy Policy for JSON Compare</h1>
+    <div class="updated">Last updated: September 21, 2026</div>
+
+    <p>This privacy policy explains how <strong>JSON Compare</strong> ("we", "the extension") handles user data when you use the browser extension.</p>
+
+    <h2>1. Single Purpose</h2>
+    <p>JSON Compare is designed strictly as a developer utility to compute structural differences between two JSON payloads and display field-level additions, deletions, value modifications, and type shifts in an intuitive side-by-side interface.</p>
+
+    <h2>2. What Data We Process and Where It Stays</h2>
+    <h3>A. Your JSON Content (Zero Transmission)</h3>
+    <ul>
+      <li>All JSON text you paste, type, format, or compare remains <strong>100% inside your browser's local memory</strong>.</li>
+      <li><strong>No JSON data is ever transmitted</strong> to external servers, cloud services, third-party APIs, or AI models.</li>
+      <li>When you refresh or close the extension tab, your JSON input and comparison results are immediately cleared from memory.</li>
+    </ul>
+
+    <h3>B. Usage Statistics (Local Storage by Default)</h3>
+    <ul>
+      <li>To help users track their usage frequency, the extension maintains counters for total opens, today's comparison count, all-time comparison count, and function clicks.</li>
+      <li>These aggregate counters are saved locally on your device via <code>chrome.storage.local</code>.</li>
+      <li><strong>No Personal Identifiable Information (PII)</strong> is collected or attached to these statistics.</li>
+    </ul>
+
+    <h3>C. No Remote Endpoint or Network Upload</h3>
+    <ul>
+      <li>The extension does not include a remote analytics endpoint, external tracking script, or telemetry upload feature.</li>
+      <li>Usage counters stay on your device and are not transmitted to the developer or any third party.</li>
+    </ul>
+
+    <h2>3. Permissions Justification</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Permission</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>storage</code></td>
+          <td>Required solely to persist local usage counters and the selected interface language on the device. The extension does not store JSON payloads, diff values, field paths, personal information, or page content.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>Host Permissions:</strong> None requested. The extension does not inspect web pages, inject scripts, or intercept web traffic.</p>
+
+    <h2>4. Data Sharing and Third-Party Disclosure</h2>
+    <ul>
+      <li><span class="badge">PROMISE</span> We do NOT sell, rent, or monetize your data under any circumstances.</li>
+      <li>We do NOT share your data with advertisers, data brokers, or credit evaluation entities.</li>
+      <li>We do NOT use external tracking scripts, third-party analytics (e.g., Google Analytics), or tracking cookies.</li>
+    </ul>
+
+    <h2>5. User Control and Data Deletion</h2>
+    <p>You can clear all usage statistics at any time from the extension's Usage Statistics panel. Uninstalling the extension automatically removes all stored data from <code>chrome.storage.local</code>.</p>
+
+    <h2>6. Contact Us</h2>
+    <p>If you have questions about this privacy policy or the extension's data practices, please open an issue on the project repository.</p>
+  </div>
+</body>
+</html>

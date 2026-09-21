@@ -1,0 +1,11 @@
+{
+  "extensionName": {
+    "message": "JSON Compare - инструмент сравнения API"
+  },
+  "extensionDescription": {
+    "message": "Инструмент структурного сравнения JSON для разработчиков, который быстро находит изменения полей и различия типов."
+  },
+  "actionTitle": {
+    "message": "Открыть JSON Compare"
+  }
+}
