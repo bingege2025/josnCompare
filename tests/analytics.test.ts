@@ -59,4 +59,22 @@ describe('插件埋点与使用频次统计 (analytics)', () => {
     expect(resetStats.totalCompares).toBe(0);
     expect('remoteEndpoint' in resetStats).toBe(false);
   });
+
+  it('应当记录关键产品行为埋点', async () => {
+    await trackEvent('language_changed', { locale: 'en' });
+    await trackEvent('stats_opened');
+    await trackEvent('compare_failed', { leftInvalid: true, rightInvalid: false });
+    await trackEvent('filter_changed', { filter: 'added' });
+    await trackEvent('page_size_changed', { pageSize: 50 });
+    await trackEvent('ignored_drawer_toggled', { open: true });
+
+    const stats = await getUsageStats();
+    expect(stats.eventCounts['language_changed']).toBe(1);
+    expect(stats.eventCounts['stats_opened']).toBe(1);
+    expect(stats.eventCounts['compare_failed']).toBe(1);
+    expect(stats.eventCounts['filter_changed']).toBe(1);
+    expect(stats.eventCounts['page_size_changed']).toBe(1);
+    expect(stats.eventCounts['ignored_drawer_toggled']).toBe(1);
+    expect(stats.totalCompares).toBe(0);
+  });
 });

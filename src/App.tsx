@@ -62,8 +62,11 @@ export const App: React.FC = () => {
   }, [locale, t.appTitle, t.htmlLang]);
 
   const setLocale = useCallback((nextLocale: Locale) => {
+    if (nextLocale !== locale) {
+      trackEvent('language_changed', { locale: nextLocale });
+    }
     setLocaleState(nextLocale);
-  }, []);
+  }, [locale]);
 
   // 执行核心对比操作
   const executeCompare = useCallback(
@@ -87,6 +90,10 @@ export const App: React.FC = () => {
       }
 
       if (hasError) {
+        trackEvent('compare_failed', {
+          leftInvalid: !pLeft.success,
+          rightInvalid: !pRight.success,
+        });
         setCompareResult(null);
         setIsStale(false);
         return;
@@ -131,6 +138,12 @@ export const App: React.FC = () => {
   // 点击执行对比
   const handleManualCompare = () => {
     executeCompare(leftText, rightText, ignoredPaths);
+  };
+
+  const handleOpenStats = () => {
+    setIsStatsOpen(true);
+    trackEvent('stats_opened');
+    getUsageStats().then((s) => setTotalCompares(s.totalCompares));
   };
 
   // 加载模拟数据并立即对比
@@ -264,6 +277,26 @@ export const App: React.FC = () => {
     trackEvent(type === 'path' ? 'copy_path' : 'copy_value');
   };
 
+  const handleFilterChange = (filter: DiffType | 'all') => {
+    setFilterType(filter);
+    setCurrentPage(1);
+    trackEvent('filter_changed', { filter });
+  };
+
+  const handleToggleIgnoredDrawer = () => {
+    setShowIgnoredDrawer((prev) => {
+      const next = !prev;
+      trackEvent('ignored_drawer_toggled', { open: next });
+      return next;
+    });
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
+    trackEvent('page_size_changed', { pageSize: size });
+  };
+
   // 根据 filterType 筛选后的差异列表
   const filteredDiffs = useMemo(() => {
     if (!compareResult) return [];
@@ -288,10 +321,7 @@ export const App: React.FC = () => {
         onSwap={handleSwap}
         onClearBoth={handleClearBoth}
         onCompare={handleManualCompare}
-        onOpenStats={() => {
-          setIsStatsOpen(true);
-          getUsageStats().then((s) => setTotalCompares(s.totalCompares));
-        }}
+        onOpenStats={handleOpenStats}
         isStale={isStale}
         canCompare={canCompare}
         totalCompares={totalCompares}
@@ -353,13 +383,10 @@ export const App: React.FC = () => {
             <SummaryBar
               summary={compareResult.summary}
               currentFilter={filterType}
-              onFilterChange={(f) => {
-                setFilterType(f);
-                setCurrentPage(1);
-              }}
+              onFilterChange={handleFilterChange}
               ignoredCount={compareResult.ignoredCount}
               showIgnoredDrawer={showIgnoredDrawer}
-              onToggleIgnoredDrawer={() => setShowIgnoredDrawer((prev) => !prev)}
+              onToggleIgnoredDrawer={handleToggleIgnoredDrawer}
             />
 
             {showIgnoredDrawer && (
@@ -383,10 +410,7 @@ export const App: React.FC = () => {
                 totalItems={filteredDiffs.length}
                 pageSize={pageSize}
                 onPageChange={setCurrentPage}
-                onPageSizeChange={(size) => {
-                  setPageSize(size);
-                  setCurrentPage(1);
-                }}
+                onPageSizeChange={handlePageSizeChange}
               />
             )}
           </div>

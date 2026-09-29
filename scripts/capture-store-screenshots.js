@@ -1,11 +1,9 @@
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
-import path from 'node:path';
+import net from 'node:net';
 import os from 'node:os';
+import path from 'node:path';
 
-const chromePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-const remotePort = 9333;
-const appUrl = process.env.APP_URL || 'http://127.0.0.1:5173/';
 const outputDir = path.resolve('store-assets', 'screenshots');
 const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'json-compare-chrome-'));
 
@@ -15,6 +13,65 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+async function removeDirWithRetry(dir) {
+  for (let attempt = 0; attempt < 6; attempt++) {
+    try {
+      fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 150 });
+      return;
+    } catch {
+      await delay(250);
+    }
+  }
+}
+
+function findChrome() {
+  const candidates = [
+    process.env.CHROME_BIN,
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    '/Applications/Chromium.app/Contents/MacOS/Chromium',
+    '/usr/bin/google-chrome',
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+  ].filter(Boolean);
+
+  const found = candidates.find((item) => fs.existsSync(item));
+  if (!found) {
+    throw new Error('Chrome executable not found. Set CHROME_BIN to run screenshot capture.');
+  }
+  return found;
+}
+
+function findFreePort() {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
+    server.listen(0, '127.0.0.1', () => {
+      const address = server.address();
+      server.close(() => resolve(address.port));
+    });
+    server.on('error', reject);
+  });
+}
+
+async function isReachable(url) {
+  try {
+    const res = await fetch(url, { method: 'HEAD' });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+async function isJsonCompareApp(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return false;
+    const html = await res.text();
+    return html.includes('JSON Compare') && html.includes('/src/main.tsx');
+  } catch {
+    return false;
+  }
+}
+
 async function waitForJson(url, timeoutMs = 10000) {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
@@ -22,11 +79,43 @@ async function waitForJson(url, timeoutMs = 10000) {
       const res = await fetch(url);
       if (res.ok) return await res.json();
     } catch {
-      // Chrome may still be starting.
+      // Target may still be starting.
     }
     await delay(150);
   }
   throw new Error(`Timed out waiting for ${url}`);
+}
+
+async function waitForHttp(url, timeoutMs = 15000) {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    if (await isReachable(url)) return;
+    await delay(250);
+  }
+  throw new Error(`Timed out waiting for ${url}`);
+}
+
+async function ensureAppServer() {
+  if (process.env.APP_URL) {
+    await waitForHttp(process.env.APP_URL);
+    return { appUrl: process.env.APP_URL, server: null };
+  }
+
+  const defaultUrl = 'http://127.0.0.1:5173/';
+  if (await isJsonCompareApp(defaultUrl)) {
+    return { appUrl: defaultUrl, server: null };
+  }
+
+  const port = await findFreePort();
+  const appUrl = `http://127.0.0.1:${port}/`;
+  const server = spawn('npm', ['run', 'dev', '--', '--host', '127.0.0.1', '--port', String(port)], {
+    stdio: 'ignore',
+  });
+  await waitForHttp(appUrl);
+  if (!(await isJsonCompareApp(appUrl))) {
+    throw new Error(`Started server at ${appUrl}, but it is not serving JSON Compare`);
+  }
+  return { appUrl, server };
 }
 
 class CdpClient {
@@ -66,7 +155,7 @@ class CdpClient {
   }
 }
 
-async function createPage() {
+async function createPage(remotePort, appUrl) {
   const target = await fetch(
     `http://127.0.0.1:${remotePort}/json/new?${encodeURIComponent(appUrl)}`,
     { method: 'PUT' }
@@ -81,7 +170,8 @@ async function createPage() {
     deviceScaleFactor: 1,
     mobile: false,
   });
-  await delay(900);
+  await client.send('Page.navigate', { url: appUrl });
+  await waitForAppReady(client);
   return client;
 }
 
@@ -92,9 +182,22 @@ async function evaluate(client, expression) {
     returnByValue: true,
   });
   if (result.exceptionDetails) {
-    throw new Error(result.exceptionDetails.text || 'Runtime.evaluate failed');
+    const description = result.exceptionDetails.exception?.description;
+    throw new Error(description || result.exceptionDetails.text || 'Runtime.evaluate failed');
   }
   return result.result.value;
+}
+
+async function waitForAppReady(client, timeoutMs = 10000) {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    const ready = await evaluate(client, `
+      Boolean(document.querySelector('.app-container') && document.querySelectorAll('button').length > 0)
+    `);
+    if (ready) return;
+    await delay(150);
+  }
+  throw new Error('Timed out waiting for the React app to render');
 }
 
 async function clickButton(client, labels) {
@@ -140,8 +243,29 @@ async function capture(client, filename) {
   fs.writeFileSync(path.join(outputDir, filename), Buffer.from(result.data, 'base64'));
 }
 
-async function main() {
-  const chrome = spawn(chromePath, [
+async function withPage(remotePort, appUrl, filename, run) {
+  const page = await createPage(remotePort, appUrl);
+  try {
+    await run(page);
+    await capture(page, filename);
+  } finally {
+    page.close();
+  }
+}
+
+for (const entry of fs.readdirSync(outputDir)) {
+  if (entry.endsWith('.png')) fs.unlinkSync(path.join(outputDir, entry));
+}
+
+let chrome;
+let devServer;
+
+try {
+  const { appUrl, server } = await ensureAppServer();
+  devServer = server;
+
+  const remotePort = await findFreePort();
+  chrome = spawn(findChrome(), [
     '--headless=new',
     '--disable-gpu',
     '--hide-scrollbars',
@@ -151,21 +275,18 @@ async function main() {
     'about:blank',
   ], { stdio: 'ignore' });
 
-  try {
-    await waitForJson(`http://127.0.0.1:${remotePort}/json/version`);
+  await waitForJson(`http://127.0.0.1:${remotePort}/json/version`);
 
-    let page = await createPage();
+  await withPage(remotePort, appUrl, 'screenshot-1-structured-compare.png', async (page) => {
     await loadSample(page);
-    await capture(page, 'screenshot-1-structured-compare.png');
-    page.close();
+  });
 
-    page = await createPage();
+  await withPage(remotePort, appUrl, 'screenshot-2-multilingual-interface.png', async (page) => {
     await setLocale(page, 'en');
     await loadSample(page);
-    await capture(page, 'screenshot-2-multilingual-interface.png');
-    page.close();
+  });
 
-    page = await createPage();
+  await withPage(remotePort, appUrl, 'screenshot-3-ignore-noise-fields.png', async (page) => {
     await setLocale(page, 'en');
     await loadSample(page);
     await evaluate(page, `
@@ -186,28 +307,20 @@ async function main() {
       })()
     `);
     await delay(700);
-    await capture(page, 'screenshot-3-ignore-noise-fields.png');
-    page.close();
+  });
 
-    page = await createPage();
+  await withPage(remotePort, appUrl, 'screenshot-4-usage-statistics.png', async (page) => {
     await setLocale(page, 'en');
     await loadSample(page);
     await clickButton(page, ['Usage stats']);
-    await capture(page, 'screenshot-4-usage-statistics.png');
-    page.close();
+  });
 
-    page = await createPage();
+  await withPage(remotePort, appUrl, 'screenshot-5-russian-interface.png', async (page) => {
     await setLocale(page, 'ru');
     await loadSample(page);
-    await capture(page, 'screenshot-5-russian-interface.png');
-    page.close();
-  } finally {
-    chrome.kill('SIGTERM');
-    fs.rmSync(userDataDir, { recursive: true, force: true });
-  }
+  });
+} finally {
+  if (chrome) chrome.kill('SIGTERM');
+  if (devServer) devServer.kill('SIGTERM');
+  await removeDirWithRetry(userDataDir);
 }
-
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});

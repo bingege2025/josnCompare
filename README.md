@@ -73,7 +73,7 @@ npm run dev
 ```bash
 npm test
 ```
-测试套件基于 Vitest，覆盖高精度数值、JSON Pointer 编解码、1 MiB 解析边界、嵌套增删改查、数组按序比较、父路径级联忽略等 22 项测试。
+测试套件基于 Vitest，覆盖高精度数值、JSON Pointer 编解码、1 MiB 解析边界、嵌套增删改查、数组按序比较、父路径级联忽略、本地化资源等 29 项测试。
 
 ### 生产打包构建
 ```bash

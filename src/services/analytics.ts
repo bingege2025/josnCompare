@@ -17,7 +17,13 @@ export type AnalyticsEventType =
   | 'restore_path'
   | 'clear_ignored'
   | 'copy_value'
-  | 'copy_path';
+  | 'copy_path'
+  | 'language_changed'
+  | 'stats_opened'
+  | 'compare_failed'
+  | 'filter_changed'
+  | 'page_size_changed'
+  | 'ignored_drawer_toggled';
 
 export interface EventLogItem {
   id: string;
