@@ -8,7 +8,7 @@
 
 | 材料类型 | 存放路径 | 尺寸/规格 | 说明 |
 | :--- | :--- | :--- | :--- |
-| **扩展发布安装包** | `json-compare-v1.0.0.zip` | ZIP 压缩包 | 符合 CWS 结构规范，直接上传 |
+| **扩展发布安装包** | `json-compare-v1.0.1.zip` | ZIP 压缩包 | 符合 CWS 结构规范，直接上传 |
 | **商店应用图标** | `store-assets/icon-128.png` | 128×128 px PNG | 商店展台大图标 |
 | **功能截图 1** | `store-assets/screenshots/screenshot-1-structured-compare.png` | 1280×800 px PNG | 双栏结构化比对与差异高亮 |
 | **功能截图 2** | `store-assets/screenshots/screenshot-2-multilingual-interface.png` | 1280×800 px PNG | 多语言界面切换 |
@@ -34,7 +34,7 @@
    VITE_GA_API_SECRET=your_measurement_protocol_api_secret
    VITE_GA_DEBUG=false
    ```
-5. 重新执行 `npm run package`，上传新生成的 `json-compare-v1.0.0.zip`。未配置这些变量时，扩展仍可正常使用，但不会向 GA4 发送事件。
+5. 重新执行 `npm run package`，上传新生成的 `json-compare-v1.0.1.zip`。未配置这些变量时，扩展仍可正常使用，但不会向 GA4 发送事件。
 
 ### 第一步：登录 Chrome 开发者控制台
 1. 打开浏览器访问：[Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
@@ -45,7 +45,7 @@
 
 ### 第二步：上传扩展安装包
 1. 在控制台右上角点击 **「+ 新项」 (New Item)** 按钮。
-2. 将项目根目录下的 **`json-compare-v1.0.0.zip`** 拖拽上传。
+2. 将项目根目录下的 **`json-compare-v1.0.1.zip`** 拖拽上传。
 3. 系统解包校验成功后，会自动进入该扩展的编辑详情页。
 
 ---

@@ -6,10 +6,10 @@
 
 ## 一、基本元数据 (Store Listing Metadata)
 
-- **版本号 (Version)**：`1.0.0`
+- **版本号 (Version)**：`1.0.1`
 - **类别 (Category)**：开发者工具 (Developer Tools)
 - **支持语言**：中文 (简体)、English、Deutsch、Français、Русский
-- **扩展包**：`json-compare-v1.0.0.zip`
+- **扩展包**：`json-compare-v1.0.1.zip`
 - **主机权限 (Host Permissions)**：`https://www.google-analytics.com/*`
 - **敏感权限 (Sensitive Permissions)**：无
 

@@ -94,7 +94,7 @@ async function getClientId(): Promise<string> {
 function buildSafeParams(meta?: Record<string, unknown>): Record<string, string | number | boolean> {
   const params: Record<string, string | number | boolean> = {
     event_source: 'chrome_extension',
-    app_version: '1.0.0',
+    app_version: '1.0.1',
     session_id: DEFAULT_SESSION_ID,
     engagement_time_msec: 1,
   };
