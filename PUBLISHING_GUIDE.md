@@ -23,6 +23,19 @@
 
 ## 🚀 实操发布步骤
 
+### 准备 Google Analytics 4 埋点配置
+1. 在 Google Analytics 中创建或选择一个 GA4 Property，并创建 Web 数据流。
+2. 记录该数据流的 **Measurement ID**，格式类似 `G-XXXXXXXXXX`。
+3. 在数据流的 **Measurement Protocol API secrets** 中创建一个 API Secret。
+4. 在项目根目录创建本地 `.env` 文件（不要提交到 GitHub），按 `.env.example` 填入：
+   ```bash
+   VITE_GA_ENABLED=true
+   VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+   VITE_GA_API_SECRET=your_measurement_protocol_api_secret
+   VITE_GA_DEBUG=false
+   ```
+5. 重新执行 `npm run package`，上传新生成的 `json-compare-v1.0.0.zip`。未配置这些变量时，扩展仍可正常使用，但不会向 GA4 发送事件。
+
 ### 第一步：登录 Chrome 开发者控制台
 1. 打开浏览器访问：[Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
 2. 登录你的 Google 账号。
@@ -76,10 +89,14 @@
    Required solely to persist user usage counters (e.g., today's comparison count, all-time count) and user preferences locally on the user's machine.
    ```
    或使用 `CHROMEWEBSTORE.md` 中更新后的权限说明：仅用于本地保存使用计数和界面语言，不保存 JSON 内容、差异值、字段路径、个人信息或网页内容。
-3. **主机权限 (Host Permissions)**：无申请，保持留空。
+3. **主机权限 (Host Permissions)**：
+   针对 `https://www.google-analytics.com/*`：
+   ```text
+   Required solely to send privacy-safe aggregate product events to Google Analytics 4 via Measurement Protocol. JSON payloads, diff values, copied values, field paths, raw errors, personal information, and page content are never sent.
+   ```
 4. **数据使用合规勾选 (Data Usage Declarations)**：
    - 勾选全部三项承诺（不向第三方出售、不用于非核心功能、不用于信贷评估）。
-   - 用户数据类型选择：无收集个人信息 (No PII collected)。
+   - 用户数据类型选择：不收集个人身份信息 (No PII collected)。如后台要求声明 analytics，请说明仅收集不含内容的汇总产品事件。
 5. **隐私权政策网址 (Privacy Policy URL)**：
    - 将 `docs/privacy-policy.html` 部署到你的 GitHub Pages 或个人网站，填入其公开链接。
 

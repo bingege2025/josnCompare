@@ -1,8 +1,11 @@
+import { sendGoogleAnalyticsEvent } from './googleAnalytics';
+
 /**
  * 插件埋点与使用频次统计服务
  * 支持：
  * 1. 本地免依赖安全持久化（优先 chrome.storage.local，回退 localStorage）
  * 2. 统计今日比对次数、累计比对次数、功能模块使用频次、操作日志
+ * 3. 可选 GA4 Measurement Protocol 汇总事件上报
  */
 
 export type AnalyticsEventType =
@@ -155,6 +158,7 @@ export async function trackEvent(
 
   // 异步存储更新
   await storageAdapter.set(stats);
+  void sendGoogleAnalyticsEvent(event, meta);
 
   return stats;
 }

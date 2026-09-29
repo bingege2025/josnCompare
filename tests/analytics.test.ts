@@ -1,12 +1,21 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   trackEvent,
   getUsageStats,
   resetUsageStats,
 } from '../src/services/analytics';
+import {
+  buildGoogleAnalyticsPayload,
+  isGoogleAnalyticsConfigured,
+  sendGoogleAnalyticsEvent,
+} from '../src/services/googleAnalytics';
 
 describe('插件埋点与使用频次统计 (analytics)', () => {
   beforeEach(async () => {
+    vi.restoreAllMocks();
+    if (typeof localStorage !== 'undefined') {
+      localStorage.clear();
+    }
     await resetUsageStats();
   });
 
@@ -49,7 +58,12 @@ describe('插件埋点与使用频次统计 (analytics)', () => {
     expect(stats.recentLogs.find((log) => log.event === 'ignore_path')?.meta).toBeUndefined();
   });
 
-  it('统计数据保持纯本地，不暴露远程上报配置', async () => {
+  it('未配置 Google Analytics 时不执行远程上报', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 204 }));
+
+    await sendGoogleAnalyticsEvent('compare_execute', { diffCount: 3 }, { enabled: false });
+    expect(fetchSpy).not.toHaveBeenCalled();
+
     await trackEvent('compare_execute', { diffCount: 3 });
     const stats = await getUsageStats();
     expect('remoteEndpoint' in stats).toBe(false);
@@ -76,5 +90,64 @@ describe('插件埋点与使用频次统计 (analytics)', () => {
     expect(stats.eventCounts['page_size_changed']).toBe(1);
     expect(stats.eventCounts['ignored_drawer_toggled']).toBe(1);
     expect(stats.totalCompares).toBe(0);
+  });
+
+  it('Google Analytics 只上报安全汇总字段，不包含 JSON 内容、路径或差异值', async () => {
+    expect(isGoogleAnalyticsConfigured({
+      enabled: true,
+      measurementId: 'G-TEST12345',
+      apiSecret: 'secret',
+    })).toBe(true);
+
+    const payload = await buildGoogleAnalyticsPayload('compare_execute', {
+      diffCount: 4,
+      addedCount: 1,
+      removedCount: 1,
+      valueChangedCount: 2,
+      locale: 'en',
+      path: '/user/password',
+      pointer: '/secret/token',
+      oldValue: '123456',
+      newValue: 'abcdef',
+      jsonContent: '{"password":"123456"}',
+      error: 'Unexpected token near secret',
+    });
+
+    const serialized = JSON.stringify(payload);
+    expect(payload.events[0].params.diff_count).toBe(4);
+    expect(payload.events[0].params.added_count).toBe(1);
+    expect(payload.events[0].params.removed_count).toBe(1);
+    expect(payload.events[0].params.value_changed_count).toBe(2);
+    expect(payload.events[0].params.locale).toBe('en');
+    expect(serialized).not.toContain('/user/password');
+    expect(serialized).not.toContain('/secret/token');
+    expect(serialized).not.toContain('123456');
+    expect(serialized).not.toContain('abcdef');
+    expect(serialized).not.toContain('Unexpected token');
+  });
+
+  it('配置 Google Analytics 后按 Measurement Protocol 发送事件', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 204 }));
+
+    await sendGoogleAnalyticsEvent(
+      'language_changed',
+      { locale: 'de' },
+      {
+        enabled: true,
+        measurementId: 'G-TEST12345',
+        apiSecret: 'secret',
+      }
+    );
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchSpy.mock.calls[0];
+    expect(String(url)).toContain('https://www.google-analytics.com/mp/collect');
+    expect(String(url)).toContain('measurement_id=G-TEST12345');
+    expect(String(url)).toContain('api_secret=secret');
+    expect(init?.method).toBe('POST');
+
+    const body = JSON.parse(String(init?.body));
+    expect(body.events[0].name).toBe('language_changed');
+    expect(body.events[0].params.locale).toBe('de');
   });
 });

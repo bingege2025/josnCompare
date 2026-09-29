@@ -10,7 +10,7 @@
 - **类别 (Category)**：开发者工具 (Developer Tools)
 - **支持语言**：中文 (简体)、English、Deutsch、Français、Русский
 - **扩展包**：`json-compare-v1.0.0.zip`
-- **主机权限 (Host Permissions)**：无
+- **主机权限 (Host Permissions)**：`https://www.google-analytics.com/*`
 - **敏感权限 (Sensitive Permissions)**：无
 
 ---
@@ -35,12 +35,12 @@ JSON Compare 是一款专为后端、前端及测试工程师打造的高性能�
 4. 路径级噪声过滤：支持 RFC 6901 JSON Pointer，可一键忽略 requestId、timestamp、traceId 等动态字段；忽略父路径时自动级联其全部子节点。
 5. 独立大屏工作台：点击扩展图标即可在新标签页打开双栏对比界面，适合查看长接口响应和复杂嵌套数据。
 6. 多语言界面：支持简体中文、英语、德语、法语和俄语，适合跨地区开发团队使用。
-7. 本地使用统计：仅在浏览器本地记录打开次数、比对次数和功能触发次数，便于了解自己的使用频率。
+7. 使用统计：在浏览器本地记录打开次数、比对次数和功能触发次数；生产版本配置后会通过 Google Analytics 4 发送不含 JSON 内容的汇总产品事件。
 
 隐私与安全：
 - 所有 JSON 解析和对比都在浏览器本地内存中完成。
-- 不申请任何主机权限，不读取网页内容。
-- 不上传 JSON 内容、差异值、字段路径或使用日志。
+- 仅申请 Google Analytics 上报域名权限，不读取网页内容。
+- 不上传 JSON 内容、差异值、字段路径、复制值或原始错误信息。
 - 断网也可使用核心对比功能。
 ```
 
@@ -62,12 +62,12 @@ Key features:
 4. Path-level noise filtering: supports RFC 6901 JSON Pointer, so dynamic fields such as requestId, timestamp, and traceId can be ignored with one click. Ignoring a parent path also ignores all of its children.
 5. Dedicated full-page workspace: clicking the extension icon opens a two-column comparison view in a new tab, designed for long API responses and deeply nested data.
 6. Multilingual interface: supports Simplified Chinese, English, German, French, and Russian for international development teams.
-7. Local usage statistics: stores only local counters such as page opens, comparison runs, and feature usage counts.
+7. Usage statistics: stores local counters such as page opens, comparison runs, and feature usage counts; when configured for production, it sends content-free aggregate product events to Google Analytics 4.
 
 Privacy and security:
 - All JSON parsing and comparison run locally in browser memory.
-- No host permissions are requested and web page content is never read.
-- JSON content, diff values, field paths, and usage logs are never uploaded.
+- Only the Google Analytics reporting host permission is requested, and web page content is never read.
+- JSON content, diff values, field paths, copied values, and raw error messages are never uploaded.
 - Core comparison features work offline.
 ```
 
@@ -89,12 +89,12 @@ Hauptfunktionen:
 4. Pfadbasierte Rauschfilterung: unterstützt RFC 6901 JSON Pointer. Dynamische Felder wie requestId, timestamp oder traceId können mit einem Klick ignoriert werden; ein ignorierter Elternpfad schließt automatisch alle Kindpfade ein.
 5. Eigenständiger Arbeitsbereich: ein Klick auf das Erweiterungssymbol öffnet eine zweispaltige Vergleichsansicht in einem neuen Tab, ideal für lange API-Antworten und verschachtelte Daten.
 6. Mehrsprachige Oberfläche: unterstützt vereinfachtes Chinesisch, Englisch, Deutsch, Französisch und Russisch.
-7. Lokale Nutzungsstatistik: speichert nur lokale Zähler wie Seitenaufrufe, Vergleichsläufe und Funktionsnutzung.
+7. Nutzungsstatistik: speichert lokale Zähler wie Seitenaufrufe, Vergleichsläufe und Funktionsnutzung; bei Produktionskonfiguration werden inhaltsfreie aggregierte Produktereignisse an Google Analytics 4 gesendet.
 
 Datenschutz und Sicherheit:
 - JSON-Parsing und Vergleich erfolgen vollständig lokal im Browser-Speicher.
-- Es werden keine Host-Berechtigungen angefordert und keine Webseiteninhalte gelesen.
-- JSON-Inhalte, Diff-Werte, Feldpfade und Nutzungsprotokolle werden niemals hochgeladen.
+- Es wird nur die Google-Analytics-Reporting-Host-Berechtigung angefordert; Webseiteninhalte werden nicht gelesen.
+- JSON-Inhalte, Diff-Werte, Feldpfade, kopierte Werte und rohe Fehlermeldungen werden niemals hochgeladen.
 - Die Kernfunktionen funktionieren auch offline.
 ```
 
@@ -116,12 +116,12 @@ Fonctions principales :
 4. Filtrage du bruit par chemin : prend en charge RFC 6901 JSON Pointer. Les champs dynamiques comme requestId, timestamp ou traceId peuvent être ignorés en un clic ; ignorer un chemin parent ignore aussi tous ses enfants.
 5. Espace de travail dédié : un clic sur l’icône de l’extension ouvre une vue de comparaison à deux colonnes dans un nouvel onglet, adaptée aux longues réponses API et aux données imbriquées.
 6. Interface multilingue : prend en charge le chinois simplifié, l’anglais, l’allemand, le français et le russe.
-7. Statistiques locales : stocke uniquement des compteurs locaux tels que les ouvertures de page, le nombre de comparaisons et l’utilisation des fonctions.
+7. Statistiques d’utilisation : stocke des compteurs locaux tels que les ouvertures de page, le nombre de comparaisons et l’utilisation des fonctions ; en production, si configuré, envoie à Google Analytics 4 des événements produit agrégés sans contenu JSON.
 
 Confidentialité et sécurité :
 - Toute l’analyse et la comparaison JSON s’effectuent localement en mémoire dans le navigateur.
-- Aucune permission d’hôte n’est demandée et aucun contenu de page web n’est lu.
-- Le contenu JSON, les valeurs de diff, les chemins de champs et les journaux d’utilisation ne sont jamais envoyés.
+- Seule la permission d’hôte de reporting Google Analytics est demandée, et aucun contenu de page web n’est lu.
+- Le contenu JSON, les valeurs de diff, les chemins de champs, les valeurs copiées et les messages d’erreur bruts ne sont jamais envoyés.
 - Les fonctions principales restent disponibles hors ligne.
 ```
 
@@ -143,12 +143,12 @@ JSON Compare — это расширение для высокопроизвод
 4. Фильтрация шума по пути: поддерживается RFC 6901 JSON Pointer. Динамические поля, такие как requestId, timestamp и traceId, можно игнорировать одним кликом; игнорирование родительского пути автоматически исключает все дочерние узлы.
 5. Отдельная рабочая область: нажатие на значок расширения открывает двухколоночное окно сравнения в новой вкладке, удобное для длинных ответов API и глубоко вложенных данных.
 6. Многоязычный интерфейс: поддерживаются упрощенный китайский, английский, немецкий, французский и русский языки.
-7. Локальная статистика использования: сохраняются только локальные счетчики, например открытия страницы, запуски сравнения и использование функций.
+7. Статистика использования: сохраняются локальные счетчики, например открытия страницы, запуски сравнения и использование функций; при производственной настройке отправляются агрегированные продуктовые события без JSON-содержимого в Google Analytics 4.
 
 Конфиденциальность и безопасность:
 - Весь разбор и сравнение JSON выполняются локально в памяти браузера.
-- Расширение не запрашивает host permissions и не читает содержимое веб-страниц.
-- JSON-данные, значения отличий, пути полей и журналы использования никогда не загружаются на сервер.
+- Расширение запрашивает только разрешение для хоста отчетности Google Analytics и не читает содержимое веб-страниц.
+- JSON-данные, значения отличий, пути полей, скопированные значения и исходные сообщения об ошибках никогда не загружаются на сервер.
 - Основные функции работают без подключения к интернету.
 ```
 
@@ -161,8 +161,9 @@ JSON Compare — это расширение для высокопроизвод
 | 声明权限 | 用途与审查理由 (Plain-English Justification) |
 | :--- | :--- |
 | `storage` | Required solely to persist local usage counters and the selected interface language on the user's machine. The extension does not store JSON payloads, diff values, field paths, personal information, or page content. |
+| `https://www.google-analytics.com/*` | Required solely to send privacy-safe aggregate product events to Google Analytics 4 via Measurement Protocol. JSON payloads, diff values, copied values, field paths, raw errors, personal information, and page content are never sent. |
 
-> **主机权限 (Host Permissions)**：无。不申请任何全网域名或特定域名的读取/注入权限。  
+> **主机权限 (Host Permissions)**：仅用于连接 `https://www.google-analytics.com/*` 发送 GA4 汇总事件，不读取网页、不注入脚本、不拦截流量。  
 > **敏感权限 (Sensitive Permissions)**：无。
 
 ---
@@ -175,7 +176,7 @@ JSON Compare — это расширение для высокопроизвод
   - [x] 不会将用户数据用于与扩展核心功能无关的用途（如广告定位、信贷评估等）。
   - [x] 不会将用户数据用于判定信用度或用于借贷目的。
 - **个人身份信息 (PII)**：不收集任何个人身份信息、健康信息、财务信息或身份凭证。
-- **远程传输**：无。扩展不上传 JSON 内容、差异值、字段路径或使用日志。
+- **远程传输**：仅向 Google Analytics 4 发送不含内容的汇总产品事件。扩展不上传 JSON 内容、差异值、复制值、字段路径、原始错误信息或网页内容。
 
 ---
 

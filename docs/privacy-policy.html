@@ -37,7 +37,7 @@
 <body>
   <div class="container">
     <h1>Privacy Policy for JSON Compare</h1>
-    <div class="updated">Last updated: September 21, 2026</div>
+    <div class="updated">Last updated: September 29, 2026</div>
 
     <p>This privacy policy explains how <strong>JSON Compare</strong> ("we", "the extension") handles user data when you use the browser extension.</p>
 
@@ -59,10 +59,12 @@
       <li><strong>No Personal Identifiable Information (PII)</strong> is collected or attached to these statistics.</li>
     </ul>
 
-    <h3>C. No Remote Endpoint or Network Upload</h3>
+    <h3>C. Google Analytics Event Reporting</h3>
     <ul>
-      <li>The extension does not include a remote analytics endpoint, external tracking script, or telemetry upload feature.</li>
-      <li>Usage counters stay on your device and are not transmitted to the developer or any third party.</li>
+      <li>If analytics credentials are configured in the production build, the extension sends privacy-safe product usage events to Google Analytics 4 through the Google Analytics Measurement Protocol.</li>
+      <li>Events may include action names and aggregate parameters such as extension opens, compare executions, selected interface language, filter selection, page size, parse failure side, and total diff counts.</li>
+      <li><strong>The extension never sends JSON payloads, diff values, copied values, field paths, raw parse errors, personal information, or webpage content to Google Analytics.</strong></li>
+      <li>The extension does not load Google Analytics scripts, Google Tag Manager, or other remotely hosted JavaScript.</li>
     </ul>
 
     <h2>3. Permissions Justification</h2>
@@ -78,15 +80,19 @@
           <td><code>storage</code></td>
           <td>Required solely to persist local usage counters and the selected interface language on the device. The extension does not store JSON payloads, diff values, field paths, personal information, or page content.</td>
         </tr>
+        <tr>
+          <td><code>https://www.google-analytics.com/*</code></td>
+          <td>Used only to send privacy-safe aggregate product events to Google Analytics 4 through Measurement Protocol. The extension does not inspect web pages, inject scripts, or intercept web traffic.</td>
+        </tr>
       </tbody>
     </table>
-    <p><strong>Host Permissions:</strong> None requested. The extension does not inspect web pages, inject scripts, or intercept web traffic.</p>
+    <p><strong>Host Permissions:</strong> The Google Analytics host permission is used only for aggregate product analytics.</p>
 
     <h2>4. Data Sharing and Third-Party Disclosure</h2>
     <ul>
       <li><span class="badge">PROMISE</span> We do NOT sell, rent, or monetize your data under any circumstances.</li>
       <li>We do NOT share your data with advertisers, data brokers, or credit evaluation entities.</li>
-      <li>We do NOT use external tracking scripts, third-party analytics (e.g., Google Analytics), or tracking cookies.</li>
+      <li>We use Google Analytics only for aggregate product analytics and do not use it for advertising, profiling, or credit evaluation.</li>
     </ul>
 
     <h2>5. User Control and Data Deletion</h2>
